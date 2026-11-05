@@ -2,15 +2,19 @@ import java.util.Random;
 import java.util.Scanner;
 
 public class ROCK {
+    // The five possible moves in the game.
     enum Move {
         ROCK, PAPER, SCISSORS, LIZARD, SPOCK
     }
 
+    // Return 1 when the first move wins, -1 when the second wins,
+    // and 0 when both moves are the same.
     static int winner(Move a, Move b) {
         if (a == b) {
             return 0;
         }
 
+        // Each move defeats exactly two other moves.
         return switch (a) {
             case ROCK -> (b == Move.SCISSORS || b == Move.LIZARD) ? 1 : -1;
             case PAPER -> (b == Move.ROCK || b == Move.SPOCK) ? 1 : -1;
@@ -27,8 +31,12 @@ public class ROCK {
         int playerScore = 0;
         int computerScore = 0;
 
+        // The game has five rounds.
         for (int round = 1; round <= 5; round++) {
+            // Choose a random move for the computer.
             Move computerMove = Move.values()[random.nextInt(Move.values().length)];
+
+            System.out.print("Enter your move (ROCK, PAPER, SCISSORS, LIZARD, SPOCK): ");
             Move playerMove = Move.valueOf(scanner.next().toUpperCase());
 
             int result = winner(playerMove, computerMove);
@@ -48,6 +56,7 @@ public class ROCK {
             }
         }
 
+        // Display the final result after all five rounds.
         if (playerScore > computerScore) {
             System.out.println("You win " + playerScore + "-" + computerScore);
         } else if (computerScore > playerScore) {
