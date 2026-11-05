@@ -1,101 +1,97 @@
-interface switchable
-{
-    public void turnOn();
-    public void turnOff();
+import java.util.Scanner;
+
+interface Switchable {
+    void on();
+
+    void off();
+
     boolean isOn();
-    default void toggle()
-    {
-        if(isOn())
-        {
-            turnOff();
-        }
-        else
-        {
-            turnOn();
+
+    // The default method changes the current state.
+    default void toggle() {
+        if (isOn()) {
+            off();
+        } else {
+            on();
         }
     }
 }
-interface switchOnRule
-{
-    boolean mayTurnOn(switchable device,int hour);
 
+@FunctionalInterface
+interface SwitchOnRule {
+    boolean maySwitchOn(Switchable device, int hour);
 }
-/*class DayTimeRule implements switchOnRule
-{
-    public boolean mayTurnOn(switchable device,int hour)
-    {
-        return (hour>=6 && hour<=22);
-    }
-}*/
-class Fan implements switchable
-{
-    boolean state;
 
-    public void turnOn()
-    {
-        state=true;
-        System.out.println("Fan is turned on");
+class Fan implements Switchable {
+    private boolean on;
+
+    @Override
+    public void on() {
+        on = true;
+        System.out.println("Fan is on");
     }
 
-    public void turnOff()
-    {
-        state=false;
-        System.out.println("Fan is turned off");
+    @Override
+    public void off() {
+        on = false;
+        System.out.println("Fan is off");
     }
 
-    public boolean isOn()
-    {
-        return state;
+    @Override
+    public boolean isOn() {
+        return on;
     }
 }
 
-class Light implements switchable
-{
-    boolean state;
+class Light implements Switchable {
+    private boolean on;
 
-    public void turnOn()
-    {
-        state=true;
-        System.out.println("Light is turned on");
+    @Override
+    public void on() {
+        on = true;
+        System.out.println("Light is on");
     }
 
-    public void turnOff()
-    {
-        state=false;
-        System.out.println("Light is turned off");
+    @Override
+    public void off() {
+        on = false;
+        System.out.println("Light is off");
     }
 
-    public boolean isOn()
-    {
-        return state;
+    @Override
+    public boolean isOn() {
+        return on;
     }
 }
-public class Remote
-{
-    public static void main(String [] args)
-    {
-        switchable[] r={new Fan(),new Light()};
-        for(switchable d:r)
-        {
-            d.turnOn();
-            d.turnOff();
-           System.out.println(d.isOn());
+
+public class Remote {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("Enter hour (0-23): ");
+        int hour = scanner.nextInt();
+
+        Switchable[] devices = {new Fan(), new Light()};
+
+        // The same loop toggles every device through the interface.
+        for (Switchable device : devices) {
+            device.toggle();
         }
-        //switchOnRule s=new DayTimeRule();
-        switchOnRule rule=new switchOnRule(){
-             public boolean mayTurnOn(switchable device,int hour)
-             {
-                 return (hour>=6 && hour<=22);
-             }
+
+        // Supply the rule once as an anonymous class.
+        SwitchOnRule daytimeRule = new SwitchOnRule() {
+            @Override
+            public boolean maySwitchOn(Switchable device, int currentHour) {
+                return currentHour >= 6 && currentHour <= 22;
+            }
         };
-        if(rule.mayTurnOn(r[1],50))
-        {
-            r[1].turnOn();
-        }
-        else
-        {
-            System.out.println("Cannot turn on light at this time....");
-        }
 
+        // Supply the same rule as a lambda.
+        SwitchOnRule quietHoursRule =
+                (device, currentHour) -> currentHour >= 7 && currentHour <= 21;
+
+        System.out.println("Anonymous rule allows fan: "
+                + daytimeRule.maySwitchOn(devices[0], hour));
+        System.out.println("Lambda rule allows light: "
+                + quietHoursRule.maySwitchOn(devices[1], hour));
     }
 }

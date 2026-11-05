@@ -1,40 +1,32 @@
-interface Notifier
-{
+@FunctionalInterface
+interface Notifier {
     void send(String message);
 }
-interface Urgent{
-    //blank
-}
-class SendEmail implements Notifier
-{
-    public void send(String message)
-    {
-        System.out.println("Email: "+message);
-    }
-}
-class SendSMS implements Notifier,Urgent
-{
-    public void send(String message)
-    {
-        System.out.println("SMS: "+message);
-    }
 
+// Marker interface used to identify senders that need a second message.
+interface Urgent {
 }
-public class Broadcast
-{
-    public static void main(String[] args)
-    {
-        Notifier[] senders={new SendEmail(),new SendSMS()};
-        String message="Server is Down...!!";
-        for(Notifier s:senders)
-        {
-            s.send(message);
 
-            if(s instanceof Urgent)
-            {
-                s.send("REPEAT MESSAGE: "+message);
+@FunctionalInterface
+interface UrgentNotifier extends Notifier, Urgent {
+}
+
+public class Broadcast {
+    public static void main(String[] args) {
+        Notifier emailSender = message -> System.out.println("Email: " + message);
+        UrgentNotifier smsSender =
+                message -> System.out.println("SMS: " + message);
+
+        Notifier[] senders = {emailSender, smsSender};
+        String message = "Server is down";
+
+        for (Notifier sender : senders) {
+            sender.send(message);
+
+            // Urgent senders broadcast the message twice.
+            if (sender instanceof Urgent) {
+                sender.send("URGENT: " + message);
             }
         }
     }
-
 }
