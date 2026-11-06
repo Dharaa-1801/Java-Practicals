@@ -1,0 +1,4 @@
+INFO User logged in
+WARN Disk space is low
+ERROR Request failed
+INFO Application stopped
